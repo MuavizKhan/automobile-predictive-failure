@@ -110,13 +110,26 @@ Also includes a helper function for predicting failure risk on a new sample.
 ---
 
 ## Example Outputs
-### Correlation Matrix
-> Generated inside the notebook and used to understand relationships between sensor features.
 
-*(Tip: If you want, you can store plots locally in a `/reports/figures/` folder and link them here.)*
+### Target Distribution
+<img width="484" height="384" alt="image" src="https://github.com/user-attachments/assets/fc77b1b7-f2e5-4b8d-ac58-00a563e085ec" />
+
+
+### Correlation Matrix
+<img width="861" height="584" alt="image" src="https://github.com/user-attachments/assets/31435acb-a118-453e-b3e8-0c0df7b13b7b" />
+
+
+### Feature importance (best model)
+<img width="884" height="484" alt="image" src="https://github.com/user-attachments/assets/456053c9-1c73-44d6-896b-fed4265f01ca" />
+
+
+### Precision-Recall Curve (RF)
+<img width="584" height="384" alt="image" src="https://github.com/user-attachments/assets/59e02004-c3b8-4eff-a37a-65ce340b618b" />
+
 
 ### Performance Comparison
-> A bar chart comparing Accuracy / Precision / Recall / F1 / ROC-AUC across all trained models.
+<img width="1185" height="584" alt="image" src="https://github.com/user-attachments/assets/fd0cf828-2bef-4b58-bb02-27a638438302" />
+
 
 ---
 
