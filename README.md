@@ -1,60 +1,134 @@
-# Automobile Failure Detection Model
+# Automobile Predictive Failure Detection (AI4I 2020)
 
 ## Overview
+This repository contains an end-to-end **predictive failure detection** pipeline using machine-learning models trained on the **AI4I 2020 Predictive Maintenance Dataset**. The objective is to predict whether a failure is likely to occur (**Target = 1**) or not (**Target = 0**) using sensor features such as temperature, rotational speed, torque, and tool wear.
 
-In the rapidly evolving world of transportation, the need for efficient and reliable vehicle management has become paramount. This project explores the application of machine learning techniques to predict vehicle failures, offering the potential to enhance automotive safety, reduce maintenance costs, and optimize fleet operations.
+The project is implemented primarily in a **Jupyter Notebook (`main_project.ipynb`)** and includes:
+- dataset validation + cleanup
+- detailed EDA (plots + correlation)
+- outlier handling (IQR capping / winsorization)
+- categorical encoding (`Type`)
+- proper train/test split with `stratify`
+- scaling (fit on train only)
+- class imbalance handling (SMOTE on train only)
+- training & comparison of multiple ML models
+- hyperparameter tuning (RandomizedSearchCV for Random Forest)
+- feature importance visualization
+- saving deployment artifacts + inference helper
 
-By leveraging the **AI4I 2020 Predictive Maintenance Dataset**, this model aims to detect potential failures in vehicles based on various sensor inputs, helping organizations and individuals implement predictive maintenance strategies.
+---
 
 ## Dataset
+The dataset used is the **[AI4I 2020 Predictive Maintenance Dataset](https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset)**.
 
-The dataset used in this project is the **[AI4I 2020 Predictive Maintenance Dataset](https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset)**, which includes key sensor data related to vehicle performance. This dataset contains a range of attributes including:
-
-- **UDI**: Unique identifier
-- **Product ID**: Identifier of the manufactured product
+### Columns (raw)
+- **UDI**: Unique identifier *(dropped)*
+- **Product ID**: Identifier of the manufactured product *(dropped)*
 - **Type**: Product type (H/M/L)
-- **Air Temperature [K]**
-- **Process Temperature [K]**
-- **Rotational Speed [rpm]**
+- **Air temperature [K]**
+- **Process temperature [K]**
+- **Rotational speed [rpm]**
 - **Torque [Nm]**
-- **Tool Wear [min]**
-- **Target**: Machine failure status (failure or non-failure)
+- **Tool wear [min]**
+- **Target**: Failure label (0 = No Failure, 1 = Failure)
 
-## Correlation Matrix
+### Features used for modeling
+After dropping `UDI` and `Product ID`, the model uses:
+- `Type` (encoded)
+- `Air temperature [K]`
+- `Process temperature [K]`
+- `Rotational speed [rpm]`
+- `Torque [Nm]`
+- `Tool wear [min]`
 
-This correlation matrix provides insights into how different features of the dataset are related to each other, guiding feature selection and model development.
+---
 
-![Correlation Matrix](https://github.com/user-attachments/assets/a0cb98d3-3343-4197-8d18-f1c12595fa11)
+## Workflow Summary (What `main_project.ipynb` does)
+### 1) Data Loading + Validation
+- Loads CSV
+- checks dataset is not empty
+- confirms `Target` column exists
 
-## Performance Metrics
+### 2) Exploratory Data Analysis (EDA)
+Includes:
+- target distribution (class imbalance)
+- univariate histograms with KDE
+- violin plots by target
+- KDE plots split by target
+- pairplot for interactions
+- correlation heatmap
 
-The model's performance was evaluated using various metrics, including accuracy, precision, recall, and F1-score. These metrics offer a comprehensive view of the model’s effectiveness in detecting vehicle failures.
+### 3) Outlier Handling (IQR Capping)
+- uses IQR bounds
+- **caps** extreme values instead of deleting rows (more stable, keeps data size)
 
-![Performance Metrics](https://github.com/user-attachments/assets/7282edfe-f7da-4f9a-bc84-3e63d871a889)
+### 4) Preprocessing
+- encodes `Type`
+- splits X/y
+- train/test split with stratification
+- standard scaling (fit on train only)
 
-## Bar Chart of Performance Metrics
+### 5) Class Imbalance Handling
+- SMOTE is applied **only on training data**
+- test set remains untouched (industry-correct evaluation)
 
-This bar chart provides a visual representation of the model's performance across different metrics, highlighting its strengths and potential areas for improvement.
+### 6) Model Benchmarking
+Trains and compares:
+- Logistic Regression
+- KNN
+- SVC
+- Random Forest
+- Naive Bayes
+- Decision Tree
+- MLP Neural Network
 
-![Performance Metrics Bar Chart](https://github.com/user-attachments/assets/95208ef8-a3cb-402a-85c0-c17ec263c4f1)
+Metrics computed:
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- ROC-AUC (when available)
+- Confusion matrix plots for each model
+- Bar chart comparing metrics across models
 
-## Conclusion
+### 7) Hyperparameter Tuning
+- RandomizedSearchCV on Random Forest (scoring = F1)
+- evaluation of tuned model on test set
 
-This vehicle failure detection model represents a step forward in utilizing machine learning for predictive maintenance. By identifying potential failures before they occur, this model helps to improve operational efficiency, reduce downtime, and ensure the safety and reliability of vehicles.
+### 8) Feature Importance
+- Random Forest feature importances plotted + saved for interpretation
 
-## Future Work
+### 9) Deployment Artifacts + Inference
+Saves artifacts to `artifacts/`:
+- `best_rf_model.joblib`
+- `standard_scaler.joblib`
+- `metadata.json`
+- `type_encoder.joblib` *(if used)*
 
-Future iterations of this project may explore:
+Also includes a helper function for predicting failure risk on a new sample.
 
-- Integration of more advanced algorithms like deep learning.
-- Experimentation with real-time sensor data.
-- Expansion of the dataset to cover a broader range of vehicle types and conditions.
+---
+
+## Example Outputs
+### Correlation Matrix
+> Generated inside the notebook and used to understand relationships between sensor features.
+
+*(Tip: If you want, you can store plots locally in a `/reports/figures/` folder and link them here.)*
+
+### Performance Comparison
+> A bar chart comparing Accuracy / Precision / Recall / F1 / ROC-AUC across all trained models.
+
+---
 
 ## How to Run
 
-1. Clone this repository.
-2. Install the required dependencies listed in the `requirements.txt`.
-3. Run the model using the command:
-   
+### Option A — Run in Google Colab
+1. Open `main_project.ipynb` in Colab.
+2. Upload the dataset file (or keep it in the notebook directory).
+3. Run all cells top-to-bottom.
+
+### Option B — Run in VS Code (Local)
+1. Clone this repository:
 ```bash
-   python vehicle_failure_detection.py
+git clone https://github.com/MuavizKhan/automobile-predictive-failure.git
+cd automobile-predictive-failure
